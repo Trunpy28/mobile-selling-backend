@@ -5,13 +5,13 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: [true, 'Please provide your email'],
-        unique: true,
+        unique: [true, 'Email already exists'],
         match: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
     },
     password: {
         type: String,
         required: [true, 'Please provide a password'],
-        minlength: 6
+        minlength: [6, 'Password must be at least 6 characters long']
     },
     passwordConfirm: {
         type: String,
