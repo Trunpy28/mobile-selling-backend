@@ -1,27 +1,16 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
     email: {
         type: String,
-        required: [true, 'Please provide your email'],
-        unique: [true, 'Email already exists'],
+        required: true,
+        unique: true,
         match: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
     },
     password: {
         type: String,
-        required: [true, 'Please provide a password'],
-        minlength: [6, 'Password must be at least 6 characters long']
-    },
-    passwordConfirm: {
-        type: String,
-        required: [true, 'Please confirm your password'],
-        validate: {
-            validator: function (el) {
-                return el === this.password;
-            },
-            message: 'Passwords are not the same'
-        }
+        required: true,
+        minlength: 6
     },
     name: {
         type: String,
@@ -50,16 +39,6 @@ const userSchema = new mongoose.Schema({
     }
 );
 
-userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();
-    this.password = await bcrypt.hash(this.password, 12);
-    this.passwordConfirm = undefined;
-    next();
-})
-
-userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
-    return await bcrypt.compare(candidatePassword, userPassword);
-}
 
 const User = mongoose.model("User", userSchema);
 export default User;

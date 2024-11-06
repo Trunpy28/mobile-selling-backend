@@ -1,19 +1,34 @@
-import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
-
-const createToken = (id) => {
-    return jwt.sign(
-        { id },
-        process.env.JWT_ACCESS_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN }
-    );
-};
+import bcrypt from 'bcrypt';
 
 const userService = {
-    signup: async (userData) => {
-        const newUser = await User.create(userData);
-        const accessToken = createToken(newUser._id);
-        return { newUser, accessToken };
+    register: async (email, password) => {
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            throw new Error('Invalid email format');
+        }
+
+        const emailExists = await User.findOne({ email });
+        if (emailExists) {
+            throw new Error('Email already exists');
+        }
+
+        if (password.length < 6) {
+            throw new Error('Password must be at least 6 characters');
+        }
+
+        try {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const newUser = await User.create({
+                email,
+                password: hashedPassword
+            });
+            return newUser;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+
     },
 }
 

@@ -19,6 +19,14 @@ app.use(express.urlencoded({ extended: true }));
 
 routes(app);
 
+mongoose.connect(process.env.MONGODB_URI)
+    .then(() => {
+        console.log('Connected to DB Successfully');
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+
 app.listen(process.env.PORT, () => {
     console.log('Server is running in port: ' + process.env.PORT);
 })
