@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 
 const userService = {
     register: async (email, password) => {
-
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             throw new Error('Invalid email format');
@@ -30,6 +29,24 @@ const userService = {
         }
 
     },
+    signIn: async (email, password) => {
+        const user = await User.findOne({ email }).select("+password");
+
+        if (!user) {
+            return new Error('Email hoặc mật khẩu không đúng');
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return new Error('Email hoặc mật khẩu không đúng' );
+        }
+
+        return {
+            _id: user?._id,
+            email: user?.email,
+            role: user?.role
+        }
+    }
 }
 
 export default userService;
