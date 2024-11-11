@@ -23,47 +23,47 @@ const productDetailsSchema = new mongoose.Schema({
             default: ""
         }
     },
-    camera_display: {
-            back_camera: {
+    cameraDisplay: {
+        frontCamera: {
             type: String,
             default: ""
         },
-        back_camera: {
+        backCamera: {
             type: String,
             default: ""
         },
-        display_tech: {
+        displayTech: {
             type: String,
             default: ""
         },
-        display_resolution: {
+        displayResolution: {
             type: String,
             default: ""
         },
-        display_width: {
+        displayWidth: {
             type: String,
             default: ""
         },
-        display_brightness: {
+        displayBrightness: {
             type: String,
             default: ""
         }
     },
-    pin_adapter: {
-        pin_capacity: {
+    pinAdapter: {
+        pinCapacity: {
             type: String,
             default: ""
         },
-        pin_type: {
+        pinType: {
             type: String,
             default: ""
         },
-        max_adapter_power: {
+        maxAdapterPower: {
             type: String,
             default: ""
         }
     },
-    design_material: {
+    designMaterial: {
         design: {
             type: String,
             default: ""
@@ -72,7 +72,7 @@ const productDetailsSchema = new mongoose.Schema({
             type: String,
             default: ""
         },
-        size_weight: {
+        sizeWeight: {
             type: String,
             default: ""
         },
