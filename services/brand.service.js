@@ -1,3 +1,4 @@
+import { get } from 'mongoose';
 import Brand from '../models/brand.model.js';
 
 const brandService = {
@@ -14,6 +15,15 @@ const brandService = {
         try {
             const brands = await Brand.find();
             return brands;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    getBrandById: async (id) => {
+        try {
+            const brand = await Brand.findById(id);
+            return brand;
         } catch (error) {
             throw new Error(error.message);
         }

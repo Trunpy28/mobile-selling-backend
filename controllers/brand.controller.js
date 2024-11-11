@@ -29,6 +29,21 @@ const brandController = {
         }
     },
 
+    getBrandById: async (req, res) => {
+        try {
+            const brandId = req.params.id;
+            const brand = await brandService.getBrandById(brandId);
+            res.status(200).json({
+                message: 'Lấy thông tin thương hiệu thành công',
+                data: brand
+            });
+        } catch (error) {
+            res.status(400).json({
+                message: error.message
+            });
+        }
+    },
+
     updateBrand: async (req, res) => {
         try {
             const brandId = req.params.id;
