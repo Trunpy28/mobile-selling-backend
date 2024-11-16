@@ -1,5 +1,6 @@
 import slugify from "slugify";
 import Product from "../models/product.model.js";
+import Brand from "../models/brand.model.js";
 
 export const generateSlugify = async (name) => {
     const slug = slugify(
@@ -56,9 +57,70 @@ const productService = {
         }
     },
 
-    getAllProducts: async () => {
+    getAllProducts: async (searchQuery, sortOrder, selectedBrands, page, pageSize) => {
+        if(page && typeof page === "string") {
+            page = parseInt(page);
+            if(isNaN(page) || page < 1) page = 1;
+          }
+        
+          if(pageSize && typeof pageSize === "string") {
+            pageSize = parseInt(pageSize);
+            if(isNaN(pageSize) || pageSize < 1 || pageSize > 100) pageSize = 10;
+          }
+
         try {
-            const products = await Product.find();
+            let query = Product.find();
+
+            if(searchQuery) {
+                query.find({ name :{ $regex: searchQuery, $options: "i"}});
+            }
+
+            if(selectedBrands && selectedBrands.length > 0) {
+                const brands = await Brand.find({ name: { $in: selectedBrands } });
+                const brandIds = brands.map(brand => brand._id);
+
+                query.find({ brand: { $in: brandIds } });
+            }
+
+            const totalProducts = await Product.countDocuments(query.getQuery());
+
+            let sort = {};
+
+            if(sortOrder) {
+                if(sortOrder === "name-asc") {
+                    sort = { name: 1 };
+                }
+                else if(sortOrder === "price-desc") {
+                    sort = { price: -1 };
+                }
+                else if(sortOrder === "price-asc") {
+                    sort = { price: 1 };
+                }
+
+                query.sort(sort);
+            }
+
+            if(page && pageSize) {
+                query = query.skip((page - 1) * pageSize).limit(pageSize);
+            }
+
+            const products = await query.exec();
+                                          
+            return { totalProducts, products };
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    getProductsOfBrand: async (brandId, limit) => {
+        try {
+            let query = Product.find({ brand: brandId });
+    
+            if (Number.isInteger(limit) && limit > 0) {
+                query = query.limit(limit);
+            }
+            
+            const products = await query.exec();
             return products;
         } catch (error) {
             throw new Error(error.message);
