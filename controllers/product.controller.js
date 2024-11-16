@@ -1,3 +1,4 @@
+import brandService from "../services/brand.service.js";
 import productService from "../services/product.service.js";
 
 const productController = {
@@ -49,10 +50,11 @@ const productController = {
 
     getAllProducts: async (req, res) => {
         try {
-            const products = await productService.getAllProducts();
+            const { searchQuery, sortOrder, selectedBrands, page, pageSize } = req.query;
+            const { products, totalProducts } = await productService.getAllProducts(searchQuery, sortOrder, selectedBrands, page, pageSize);
             res.status(200).json({
-                success: true,
-                products
+                products,
+                totalProducts
             });
         } catch (error) {
             res.status(404).json({
@@ -84,6 +86,23 @@ const productController = {
             res.status(200).json({
                 success: true,
                 message: 'Xóa sản phẩm thành công'
+            });
+        } catch (error) {
+            res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
+    },
+
+    getProductsOfBrand: async (req, res) => {
+        try {
+            const brand = await brandService.getBrandByName(req.query.brandName);
+            const limit = Number.parseInt(req.query.limit);
+            const products = await productService.getProductsOfBrand(brand._id, limit);
+            res.status(200).json({
+                success: true,
+                products
             });
         } catch (error) {
             res.status(404).json({
