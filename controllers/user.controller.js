@@ -55,6 +55,25 @@ const userController = {
                 message: error.message
             }
         )}
+    },
+    getUserInfomations: async () => {
+        const userId = req?.user?._id;
+        if(!userId) return res.status(404).json({
+            message: 'User id không tồn tại'
+        })
+
+        try {
+            const user = await userService.getUserInformations(userId);
+            return res.status(200).json({
+                user,
+                message: 'Lấy thông tin người dùng thành công'
+            });
+        }
+        catch (error) {
+            return res.status(400).json({
+                message: error.message
+            });
+        }
     }
 }
 

@@ -46,6 +46,21 @@ const userService = {
             email: user?.email,
             role: user?.role
         }
+    },
+    getUserInformations: async (userId) => {
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+        return {
+            email: user.email,
+            password: user.password,
+            name: user.name,
+            phoneNumber: user.phoneNumber,
+            address: user.address,
+            avatarurl: user.avatarUrl,
+            role: user.role
+        }
     }
 }
 
