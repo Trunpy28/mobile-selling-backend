@@ -56,7 +56,7 @@ const userController = {
             }
         )}
     },
-    getUserInfomations: async () => {
+    getUserInfomations: async (req, res) => {
         const userId = req?.user?._id;
         if(!userId) return res.status(404).json({
             message: 'User id không tồn tại'
@@ -73,6 +73,16 @@ const userController = {
             return res.status(400).json({
                 message: error.message
             });
+        }
+    },
+    signOut: async (req, res) => {
+        try {
+            // Xóa cookie refresh token
+            res.clearCookie('refresh_token');
+    
+            res.status(200).json({ message: 'Đăng xuất thành công' });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
         }
     }
 }
