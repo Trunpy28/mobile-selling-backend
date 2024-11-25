@@ -7,7 +7,11 @@ ProductRouter.get('/', productController.getAllProducts);
 ProductRouter.post('/create', productController.createProduct);
 ProductRouter.get('/product-details/:id', productController.getProductById);
 ProductRouter.get('/:slug', productController.getProductBySlug);
+ProductRouter.get('/details/:slug', productController.getProductBySlug);
+ProductRouter.get('/id/:id', productController.getProductById);
+ProductRouter.get('/get-all', productController.getAllProducts);
 ProductRouter.put('/update/:id', productController.updateProduct);
 ProductRouter.delete('/delete/:id', productController.deleteProduct);
+ProductRouter.get('/products-of-brand', productController.getProductsOfBrand);
 
 export default ProductRouter;

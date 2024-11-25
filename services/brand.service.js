@@ -29,6 +29,15 @@ const brandService = {
         }
     },
 
+    getBrandByName: async (name) => {
+        try {
+            const brand = await Brand.findOne({ name });
+            return brand;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
     updateBrand: async (id, data) => {
         try {
             const updatedBrand = await Brand.findByIdAndUpdate(

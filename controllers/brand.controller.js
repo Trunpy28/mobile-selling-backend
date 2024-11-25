@@ -18,10 +18,7 @@ const brandController = {
     getAllBrands: async (req, res) => {
         try {
             const brands = await brandService.getAllBrands();
-            res.status(200).json({
-                message: 'Lấy danh sách thương hiệu thành công',
-                data: brands
-            });
+            res.status(200).json(brands);
         } catch (error) {
             res.status(400).json({
                 message: error.message
