@@ -22,8 +22,22 @@ const userSchema = new mongoose.Schema({
         default: ''
     },
     address: {
-        type: String,
-        default: ''
+        city: {
+          type: String,
+          default: ''
+        },
+        district: {
+          type: String,
+          default: ''
+        },
+        ward: {
+          type: String,
+          default: ''
+        },
+        detailedAddress: {
+          type: String,
+          default: ''
+        }
     },
     avatarUrl: {
         type: String
@@ -33,7 +47,9 @@ const userSchema = new mongoose.Schema({
         default: 'User',
         enum: ["User", "Admin"]
     },
-    passwordChangedAt: Date
+    passwordChangedAt: {
+        type: Date
+    }
 },
     {
         timestamps: true
