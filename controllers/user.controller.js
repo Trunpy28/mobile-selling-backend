@@ -1,5 +1,6 @@
 import userService from '../services/user.service.js';
 import tokenService from '../services/token.service.js';
+import cloudinaryServices from '../services/cloudinary.service.js';
 
 const userController = {
     register: async (req, res) => {
@@ -83,6 +84,52 @@ const userController = {
             res.status(200).json({ message: 'Đăng xuất thành công' });
         } catch (error) {
             res.status(500).json({ message: error.message });
+        }
+    },
+    changeAvatar: async (req, res) => {
+        const userId = req?.user?._id;
+        if(!userId) return res.status(404).json({
+            message: 'User id không tồn tại'
+        })
+
+        const avatarFile = req.file;
+        if(!avatarFile) return res.status(404).json({
+            message: 'Chưa có file ảnh avatar'
+        })
+
+        try {
+            const avatarUrl = await cloudinaryServices.uploadFile(avatarFile);
+            await userService.updateAvatar(userId, avatarUrl);
+
+            return res.status(200).json({
+                message: 'Thay đổi ảnh đại diện thành công',
+                avatarUrl: avatarUrl
+            })
+        }
+        catch(error) {
+            return res.status(400).json({
+                message: error.message
+            });
+        }
+    },
+    updateProfile: async (req, res) => {
+        const userId = req?.user?._id;
+        if(!userId) return res.status(404).json({
+            message: "Tài khoản không tồn tại"
+        })
+
+        try {
+            const updatedUser = await userService.updateProfile(userId, req.body);
+
+            return res.status(200).json({
+                message: "Cập nhật thông tin thành công",
+                user: updatedUser
+            })
+        }
+        catch (error) {
+            return res.status(400).json({
+                message: error.message
+            });
         }
     }
 }

@@ -20,7 +20,7 @@ export const authMiddleware = async (req, res, next) => {
     try {
         const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
         const currentUser = await User.findById(decoded.id);
-
+        
         if (!currentUser) {
             return res.status(401).json({
                 success: false,

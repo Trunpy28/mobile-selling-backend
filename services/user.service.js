@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import User from '../models/user.model.js';
 import bcrypt from 'bcrypt';
 
@@ -48,18 +49,69 @@ const userService = {
         }
     },
     getUserInformations: async (userId) => {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error("UserId không hợp lệ");
+        }
+
         const user = await User.findById(userId);
         if (!user) {
-            throw new Error('User not found');
+            throw new Error('Tài khoản không tồn tại');
         }
+
         return {
             email: user.email,
             password: user.password,
             name: user.name,
             phoneNumber: user.phoneNumber,
             address: user.address,
-            avatarurl: user.avatarUrl,
+            avatarUrl: user.avatarUrl,
             role: user.role
+        }
+    },
+    updateAvatar: async (userId, avatarUrl) => {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error("UserId không hợp lệ");
+        }
+
+        try {
+            const user = await User.findByIdAndUpdate(
+                userId,
+                { avatarUrl },
+                { new: true }
+            );
+        
+            if (!user) {
+                throw new Error("User không tồn tại");
+            }
+        }
+        catch (error) {
+            throw new Error(error.message);
+        }
+    },
+    updateProfile: async (userId, {name, phoneNumber, address}) => {
+        if(!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error("UserId không hợp lệ");
+        }
+        
+        try {
+            const user = await User.findByIdAndUpdate(userId, 
+                {name, phoneNumber, address},
+                {new: true}
+            );
+
+            if(!user) {
+                throw new Error("User không tồn tại");
+            }
+
+            return {
+                name: user.name,
+                phoneNumber: user.phoneNumber,
+                address: user.address,
+                message: "Cập nhật thông tin thành công"
+            };
+        }
+        catch (error) {
+            throw new Error(error.message);
         }
     }
 }
