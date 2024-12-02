@@ -32,6 +32,39 @@ const productDetailController = {
                 message: error.message
             });
         }
+    },
+
+    updateProductDetail: async (req, res) => {
+        try {
+            const { productId } = req.params;
+            const productDetail = await productDetailService.updateProductDetail(productId, req.body);
+            res.status(200).json({
+                success: true,
+                message: 'Cập nhật chi tiết sản phẩm thành công',
+                data: productDetail
+            });
+        } catch (error) {
+            res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
+    },
+
+    deleteProductDetail: async (req, res) => {
+        try {
+            const { productId } = req.params;
+            await productDetailService.deleteProductDetail(productId);
+            res.status(200).json({
+                success: true,
+                message: 'Xóa chi tiết sản phẩm thành công'
+            });
+        } catch (error) {
+            res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
     }
 };
 
