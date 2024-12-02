@@ -1,9 +1,15 @@
 import brandService from "../services/brand.service.js";
+import cloudinaryServices from "../services/cloudinary.service.js";
 
 const brandController = {
     createBrand: async (req, res) => {
         try {
-            const newBrand = await brandService.createBrand(req.body);
+            let logoUrl = null;
+            if (req.file) {
+                logoUrl = await cloudinaryServices.uploadFile(req.file);
+            }
+            const brandData = { ...req.body, logoUrl };
+            const newBrand = await brandService.createBrand(brandData);
             res.status(201).json({
                 message: 'Tạo mới thương hiệu thành công',
                 data: newBrand
@@ -44,7 +50,12 @@ const brandController = {
     updateBrand: async (req, res) => {
         try {
             const brandId = req.params.id;
-            const updatedBrand = await brandService.updateBrand(brandId, req.body);
+            const data = req.body;
+            if (req.file) {
+                data.logoUrl = await cloudinaryServices.uploadFile(req.file);
+                data.logoUrl = logoUrl;
+            }
+            const updatedBrand = await brandService.updateBrand(brandId, data);
             res.status(200).json({
                 message: 'Cập nhật thương hiệu thành công',
                 data: updatedBrand

@@ -1,4 +1,3 @@
-import { get } from 'mongoose';
 import Brand from '../models/brand.model.js';
 
 const brandService = {
@@ -38,11 +37,19 @@ const brandService = {
         }
     },
 
-    updateBrand: async (id, data) => {
+    updateBrand: async (id, newData) => {
         try {
+            const brand = await Brand.findById(id);
+            if (!brand) {
+                throw new Error('Không tìm thấy thương hiệu');
+            }
+            const updatedData = {
+                ...brand._doc,
+                ...newData
+            }
             const updatedBrand = await Brand.findByIdAndUpdate(
                 id,
-                data,
+                updatedData,
                 { new: true }
             );
             return updatedBrand;
