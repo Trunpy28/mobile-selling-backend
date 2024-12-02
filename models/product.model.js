@@ -34,7 +34,8 @@ const productSchema = new mongoose.Schema({
     },
     countInStock: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
     },
     brand: {
         type: mongoose.Schema.Types.ObjectId,

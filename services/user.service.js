@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import User from '../models/user.model.js';
 import bcrypt from 'bcrypt';
+import tokenService from '../services/token.service.js';
 
 const userService = {
     register: async (email, password) => {
@@ -112,6 +113,22 @@ const userService = {
         }
         catch (error) {
             throw new Error(error.message);
+        }
+    },
+
+    refreshAccessToken: async (refreshToken) => {
+        try {
+            const decoded = tokenService.validateRefreshToken(refreshToken);
+            if (!decoded) throw new Error('Invalid refresh token');
+    
+            const user = await User.findById(decoded.id);
+            if (!user) throw new Error('User not found');
+    
+            const newAccessToken = tokenService.generateAccessToken(user);
+    
+            return { accessToken: newAccessToken };
+        } catch (error) {
+            throw new Error('Token refresh failed: ' + error.message);
         }
     }
 }
