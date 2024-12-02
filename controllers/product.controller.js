@@ -1,10 +1,16 @@
 import brandService from "../services/brand.service.js";
 import productService from "../services/product.service.js";
+import cloudinaryServices from "../services/cloudinary.service.js";
 
 const productController = {
     createProduct: async (req, res) => {
         try {
-            const newProduct = await productService.createProduct(req.body);
+            let imageUrl = null;
+            if (req.file) {
+                imageUrl = await cloudinaryServices.uploadFiles(req.file);
+            }
+            const productData = { ...req.body, imageUrl };
+            const newProduct = await productService.createProduct(productData);
             res.status(201).json({
                 success: true,
                 message: 'Tạo sản phẩm thành công',
@@ -66,7 +72,16 @@ const productController = {
 
     updateProduct: async (req, res) => {
         try {
-            const updatedProduct = await productService.updateProduct(req.params.id, req.body);
+            const { id } = req.params;
+            const data = req.body;
+
+            let imageUrl = null;
+            if (req.file) {
+                imageUrl = await cloudinaryServices.uploadFiles(req.file);
+                data.imageUrl = imageUrl;
+            }
+
+            const updatedProduct = await productService.updateProduct(id, data);
             res.status(200).json({
                 success: true,
                 message: 'Cập nhật sản phẩm thành công',
