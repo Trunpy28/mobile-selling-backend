@@ -20,36 +20,9 @@ const cartSchema = new mongoose.Schema({
             }
         }
     ],
-    customerInformation: {
-        name: {
-            type: String,
-            required: true
-        },
-        phoneNumber: {
-            type: String,
-            required: true
-        },
-        address: {
-            city: {
-                type: String,
-                required: true
-            },
-            district: {
-                type: String,
-                required: true
-            },
-            ward: {
-                type: String,
-                required: true
-            },
-            detailedAddress: {
-                type: String,
-                required: true
-            }
-        },
-    },
     totalPrice: {
         type: Number,
+        min: 0,
         required: true
     },
 }, {

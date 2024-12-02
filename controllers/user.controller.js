@@ -131,6 +131,15 @@ const userController = {
                 message: error.message
             });
         }
+    },
+    refreshAccessToken: async (req, res) => {
+        try {
+            const refreshToken = req.cookies.refresh_token; // Lấy refresh token từ cookie
+            const newAccessToken = await userService.refreshAccessToken(refreshToken);
+            res.status(200).json(newAccessToken);
+        } catch (error) {
+            res.status(400).json({ message: error.message });
+        }
     }
 }
 

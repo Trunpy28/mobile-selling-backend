@@ -14,5 +14,6 @@ UserRouter.post('/sign-out', userController.signOut);
 UserRouter.get('/user-infomation', authMiddleware, userController.getUserInfomations);
 UserRouter.patch('/change-avatar', authMiddleware ,upload.single("avatarImage"), userController.changeAvatar);
 UserRouter.put('/update-profile', authMiddleware, userController.updateProfile);
+UserRouter.post('/refresh-access-token', userController.refreshAccessToken);
 
 export default UserRouter;
