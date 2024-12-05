@@ -9,6 +9,7 @@ const upload = multer({ storage: storage });
 const BrandRouter = Router();
 
 BrandRouter.get('/get-all', brandController.getAllBrands);
+BrandRouter.get('/brand-by-name/:name', brandController.getBrandByName);
 BrandRouter.post('/create', authMiddleware, upload.single("image"), brandController.createBrand);
 BrandRouter.get('/details/:id', brandController.getBrandById);
 BrandRouter.put('/update/:id', authMiddleware, upload.single("image"), brandController.updateBrand);

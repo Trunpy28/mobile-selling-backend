@@ -5,16 +5,20 @@ import cloudinaryServices from "../services/cloudinary.service.js";
 const productController = {
     createProduct: async (req, res) => {
         try {
-            let imageUrl = null;
-            if (req.file) {
-                imageUrl = await cloudinaryServices.uploadFiles(req.file);
+            let imageUrls = [];
+            if (req.files) {
+                const { listResult } = await cloudinaryServices.uploadFiles(req.files);
+                imageUrls = listResult.map(result => result.secure_url);
             }
-            const productData = { ...req.body, imageUrl };
+            console.log(req.files);
+
+            const productData = { ...req.body, imageUrl: imageUrls };
+            console.log("productData:", productData);
             const newProduct = await productService.createProduct(productData);
             res.status(201).json({
                 success: true,
                 message: 'Tạo sản phẩm thành công',
-                product: newProduct
+                data: newProduct
             });
         } catch (error) {
             res.status(400).json({
@@ -77,7 +81,7 @@ const productController = {
 
             let imageUrl = null;
             if (req.file) {
-                imageUrl = await cloudinaryServices.uploadFiles(req.file);
+                imageUrl = await cloudinaryServices.uploadFile(req.file);
                 data.imageUrl = imageUrl;
             }
 

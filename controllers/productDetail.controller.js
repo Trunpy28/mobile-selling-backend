@@ -1,4 +1,3 @@
-import { get } from "mongoose";
 import productDetailService from "../services/productDetail.service.js";
 
 const productDetailController = {

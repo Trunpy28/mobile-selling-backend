@@ -20,11 +20,11 @@ export const generateSlugify = async (name) => {
 }
 
 const productService = {
-    createProduct: async (data) => {
+    createProduct: async (product) => {
         try {
-            const slug = await generateSlugify(data.name);
+            let slug = await generateSlugify(product.name);
             const newProduct = await Product.create({
-                ...data,
+                ...product,
                 urlSlug: slug
             });
             return newProduct;
