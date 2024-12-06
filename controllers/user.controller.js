@@ -1,6 +1,7 @@
 import userService from '../services/user.service.js';
 import tokenService from '../services/token.service.js';
 import cloudinaryServices from '../services/cloudinary.service.js';
+import { get } from 'mongoose';
 
 const userController = {
     register: async (req, res) => {
@@ -153,6 +154,45 @@ const userController = {
             });
         } catch (error) {
             res.status(400).json({
+                message: error.message
+            });
+        }
+    },
+
+    getUserById: async (req, res) => {
+        const { userId } = req.params;
+        if (!userId) return res.status(404).json({
+            message: 'User id không tồn tại'
+        })
+
+        try {
+            const user = await userService.getUserById(userId);
+            return res.status(200).json({
+                message: 'Lấy thông tin người dùng thành công',
+                data: user
+            });
+        }
+        catch (error) {
+            return res.status(400).json({
+                message: error.message
+            });
+        }
+    },
+
+    deleteUser: async (req, res) => {
+        const { userId } = req.params;
+        if (!userId) return res.status(404).json({
+            message: 'User id không tồn tại'
+        })
+
+        try {
+            await userService.deleteUser(userId);
+            return res.status(200).json({
+                message: 'Xóa người dùng thành công'
+            });
+        }
+        catch (error) {
+            return res.status(400).json({
                 message: error.message
             });
         }

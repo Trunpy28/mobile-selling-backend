@@ -140,6 +140,42 @@ const userService = {
         } catch (error) {
             throw new Error(error.message);
         }
+    },
+
+    getUserById: async (userId) => {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error("UserId không hợp lệ");
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new Error('Tài khoản không tồn tại');
+        }
+
+        return {
+            email: user.email,
+            name: user.name,
+            phoneNumber: user.phoneNumber,
+            address: user.address,
+            avatarUrl: user.avatarUrl,
+            role: user.role
+        }
+    },
+
+    deleteUser: async (userId) => {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error("UserId không hợp lệ");
+        }
+
+        try {
+            const user = await User.findByIdAndDelete(userId);
+            if (!user) {
+                throw new Error("User không tồn tại");
+            }
+        }
+        catch (error) {
+            throw new Error(error.message);
+        }
     }
 }
 
