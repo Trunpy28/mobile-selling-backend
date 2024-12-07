@@ -13,6 +13,7 @@ ProductRouter.post('/create', upload.array('imageUrl', 6), productController.cre
 ProductRouter.get('/product-details/:id', productController.getProductById);
 ProductRouter.get('/details/:slug', productController.getProductBySlug);
 ProductRouter.get('/get-all', productController.getAllProducts);
+ProductRouter.get('/total-products', productController.countTotalProducts);
 ProductRouter.put('/update/:id', authMiddleware, upload.array('imageUrl', 6), productController.updateProduct);
 ProductRouter.delete('/delete/:id', authMiddleware, productController.deleteProduct);
 ProductRouter.get('/products-of-brand', productController.getProductsOfBrand);

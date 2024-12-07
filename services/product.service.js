@@ -165,7 +165,16 @@ const productService = {
         } catch (error) {
             throw new Error(error.message);
         }
-    }
+    },
+
+    countTotalProducts: async () => {
+        try {
+            const totalProducts = await Product.countDocuments();
+            return totalProducts;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
 };
 
 export default productService;

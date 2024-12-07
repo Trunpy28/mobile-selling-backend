@@ -94,6 +94,20 @@ const brandController = {
                 message: error.message
             });
         }
+    },
+
+    getBrandsWithProductCount: async (req, res) => {
+        try {
+            const brandsWithCount = await brandService.getAllBrandsWithProductCount();
+            res.status(200).json({
+                success: true,
+                data: brandsWithCount
+            });
+        } catch (error) {
+            res.status(400).json({
+                message: error.message
+            });
+        }
     }
 };
 

@@ -196,6 +196,21 @@ const userController = {
                 message: error.message
             });
         }
+    },
+
+    countTotalUsers: async (req, res) => {
+        try {
+            const totalUsers = await userService.countTotalUsers();
+            return res.status(200).json({
+                success: true,
+                totalUsers: totalUsers
+            });
+        }
+        catch (error) {
+            return res.status(400).json({
+                message: error.message
+            });
+        }
     }
 }
 

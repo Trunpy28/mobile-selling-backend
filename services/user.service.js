@@ -176,6 +176,15 @@ const userService = {
         catch (error) {
             throw new Error(error.message);
         }
+    },
+
+    countTotalUsers: async () => {
+        try {
+            const totalUsers = await User.countDocuments();
+            return totalUsers;
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 }
 

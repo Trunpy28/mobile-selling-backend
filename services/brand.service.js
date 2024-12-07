@@ -1,4 +1,5 @@
 import Brand from '../models/brand.model.js';
+import Product from '../models/product.model.js';
 
 const brandService = {
     createBrand: async (data) => {
@@ -63,6 +64,23 @@ const brandService = {
         try {
             await Brand.findByIdAndDelete(id);
             return true;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    getAllBrandsWithProductCount: async () => {
+        try {
+            const brands = await Brand.find();
+            const brandsWidthCount = [];
+            for (const brand of brands) {
+                const productCount = await Product.countDocuments({ brand: brand._id });
+                brandsWidthCount.push({
+                    ...brand.toObject(),
+                    productCount
+                });
+            }
+            return brandsWidthCount;
         } catch (error) {
             throw new Error(error.message);
         }

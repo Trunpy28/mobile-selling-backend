@@ -9,6 +9,7 @@ const upload = multer({ storage: storage });
 const UserRouter = Router();
 
 UserRouter.get('/get-all', userController.getAllUsers);
+UserRouter.get('/total-users', userController.countTotalUsers);
 UserRouter.get('/get-by-id/:userId', userController.getUserById);
 UserRouter.post('/register', userController.register);
 UserRouter.post('/sign-in', userController.signIn);

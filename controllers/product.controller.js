@@ -129,6 +129,21 @@ const productController = {
                 message: error.message
             });
         }
+    },
+
+    countTotalProducts: async (req, res) => {
+        try {
+            const totalProducts = await productService.countTotalProducts();
+            res.status(200).json({
+                success: true,
+                data: totalProducts
+            });
+        } catch (error) {
+            res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
     }
 };
 
