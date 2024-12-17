@@ -79,13 +79,22 @@ const productController = {
             const { id } = req.params;
             const data = req.body;
 
-            let imageUrl = null;
-            if (req.file) {
-                imageUrl = await cloudinaryServices.uploadFile(req.file);
-                data.imageUrl = imageUrl;
+            let existingImages = req.body.images || [];
+            if (typeof existingImages === 'string') {
+                existingImages = [existingImages];
             }
 
+            let uploadedImages = [];
+            if (req.files && req.files.length > 0) {
+                const { listResult } = await cloudinaryServices.uploadFiles(req.files);
+                uploadedImages = listResult.map((result) => result.secure_url);
+            }
+
+            const updatedImages = [...existingImages, ...uploadedImages];
+            data.imageUrl = updatedImages;
+
             const updatedProduct = await productService.updateProduct(id, data);
+
             res.status(200).json({
                 success: true,
                 message: 'Cập nhật sản phẩm thành công',
@@ -98,6 +107,7 @@ const productController = {
             });
         }
     },
+
 
     deleteProduct: async (req, res) => {
         try {

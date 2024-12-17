@@ -9,7 +9,7 @@ const upload = multer({ storage: storage });
 const ProductRouter = Router();
 
 ProductRouter.get('/', productController.getAllProducts);
-ProductRouter.post('/create', upload.array('imageUrl', 6), productController.createProduct);
+ProductRouter.post('/create', authMiddleware, upload.array('imageUrl', 6), productController.createProduct);
 ProductRouter.get('/product-details/:id', productController.getProductById);
 ProductRouter.get('/details/:slug', productController.getProductBySlug);
 ProductRouter.get('/get-all', productController.getAllProducts);
