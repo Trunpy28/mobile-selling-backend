@@ -21,6 +21,8 @@ const productDetailController = {
         try {
             const { productId } = req.params;
             const productDetail = await productDetailService.getProductDetail(productId);
+            console.log("Product Detail: ", productDetail);
+
             res.status(200).json({
                 success: true,
                 data: productDetail

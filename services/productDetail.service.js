@@ -15,9 +15,9 @@ const productDetailService = {
         }
     },
 
-    getProductDetail: async (productId) => {
+    getProductDetail: async (product) => {
         try {
-            const productDetail = await ProductDetails.findOne(productId);
+            const productDetail = await ProductDetails.findOne({ product });
             return productDetail;
         } catch (error) {
             throw new Error(error.message);
