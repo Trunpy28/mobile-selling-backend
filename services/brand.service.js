@@ -1,5 +1,5 @@
-import { get } from 'mongoose';
 import Brand from '../models/brand.model.js';
+import Product from '../models/product.model.js';
 
 const brandService = {
     createBrand: async (data) => {
@@ -38,11 +38,19 @@ const brandService = {
         }
     },
 
-    updateBrand: async (id, data) => {
+    updateBrand: async (id, newData) => {
         try {
+            const brand = await Brand.findById(id);
+            if (!brand) {
+                throw new Error('Không tìm thấy thương hiệu');
+            }
+            const updatedData = {
+                ...brand._doc,
+                ...newData
+            }
             const updatedBrand = await Brand.findByIdAndUpdate(
                 id,
-                data,
+                updatedData,
                 { new: true }
             );
             return updatedBrand;
@@ -56,6 +64,23 @@ const brandService = {
         try {
             await Brand.findByIdAndDelete(id);
             return true;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    getAllBrandsWithProductCount: async () => {
+        try {
+            const brands = await Brand.find();
+            const brandsWidthCount = [];
+            for (const brand of brands) {
+                const productCount = await Product.countDocuments({ brand: brand._id });
+                brandsWidthCount.push({
+                    ...brand.toObject(),
+                    productCount
+                });
+            }
+            return brandsWidthCount;
         } catch (error) {
             throw new Error(error.message);
         }

@@ -40,7 +40,7 @@ const userService = {
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return new Error('Email hoặc mật khẩu không đúng' );
+            return new Error('Email hoặc mật khẩu không đúng');
         }
 
         return {
@@ -80,7 +80,7 @@ const userService = {
                 { avatarUrl },
                 { new: true }
             );
-        
+
             if (!user) {
                 throw new Error("User không tồn tại");
             }
@@ -89,18 +89,18 @@ const userService = {
             throw new Error(error.message);
         }
     },
-    updateProfile: async (userId, {name, phoneNumber, address}) => {
-        if(!mongoose.Types.ObjectId.isValid(userId)) {
+    updateProfile: async (userId, { name, phoneNumber, address }) => {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
             throw new Error("UserId không hợp lệ");
         }
-        
+
         try {
-            const user = await User.findByIdAndUpdate(userId, 
-                {name, phoneNumber, address},
-                {new: true}
+            const user = await User.findByIdAndUpdate(userId,
+                { name, phoneNumber, address },
+                { new: true }
             );
 
-            if(!user) {
+            if (!user) {
                 throw new Error("User không tồn tại");
             }
 
@@ -120,15 +120,70 @@ const userService = {
         try {
             const decoded = tokenService.validateRefreshToken(refreshToken);
             if (!decoded) throw new Error('Invalid refresh token');
-    
+
             const user = await User.findById(decoded.id);
             if (!user) throw new Error('User not found');
-    
+
             const newAccessToken = tokenService.generateAccessToken(user);
-    
+
             return { accessToken: newAccessToken };
         } catch (error) {
             throw new Error('Token refresh failed: ' + error.message);
+        }
+    },
+
+    getAllUsers: async () => {
+        try {
+            const users = await User.find();
+            const countUser = await User.countDocuments();
+            return { users, countUser };
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    getUserById: async (userId) => {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error("UserId không hợp lệ");
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new Error('Tài khoản không tồn tại');
+        }
+
+        return {
+            email: user.email,
+            name: user.name,
+            phoneNumber: user.phoneNumber,
+            address: user.address,
+            avatarUrl: user.avatarUrl,
+            role: user.role
+        }
+    },
+
+    deleteUser: async (userId) => {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error("UserId không hợp lệ");
+        }
+
+        try {
+            const user = await User.findByIdAndDelete(userId);
+            if (!user) {
+                throw new Error("User không tồn tại");
+            }
+        }
+        catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    countTotalUsers: async () => {
+        try {
+            const totalUsers = await User.countDocuments();
+            return totalUsers;
+        } catch (error) {
+            throw new Error(error.message);
         }
     }
 }

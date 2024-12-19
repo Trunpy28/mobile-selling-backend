@@ -15,14 +15,36 @@ const productDetailService = {
         }
     },
 
-    getProductDetail: async (productId) => {
+    getProductDetail: async (product) => {
         try {
-            const productDetail = await ProductDetails.findOne(productId);
+            const productDetail = await ProductDetails.findOne({ product });
             return productDetail;
         } catch (error) {
             throw new Error(error.message);
         }
     },
+
+    updateProductDetail: async (productId, data) => {
+        try {
+            const productDetail = await ProductDetails.findByIdAndUpdate(
+                productId,
+                data,
+                { new: true }
+            );
+            return productDetail;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
+
+    deleteProductDetail: async (productId) => {
+        try {
+            await ProductDetails.findByIdAndDelete(productId);
+            return true;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
 }
 
 export default productDetailService;

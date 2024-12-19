@@ -1,6 +1,7 @@
 import userService from '../services/user.service.js';
 import tokenService from '../services/token.service.js';
 import cloudinaryServices from '../services/cloudinary.service.js';
+import { get } from 'mongoose';
 
 const userController = {
     register: async (req, res) => {
@@ -27,7 +28,7 @@ const userController = {
     },
     signIn: async (req, res) => {
         const { email, password } = req.body;
-        if(!email) {
+        if (!email) {
             return res.status(400).json({
                 message: 'Chưa có thông tin email'
             });
@@ -55,11 +56,12 @@ const userController = {
             return res.status(400).json({
                 message: error.message
             }
-        )}
+            )
+        }
     },
     getUserInfomations: async (req, res) => {
         const userId = req?.user?._id;
-        if(!userId) return res.status(404).json({
+        if (!userId) return res.status(404).json({
             message: 'User id không tồn tại'
         })
 
@@ -80,7 +82,7 @@ const userController = {
         try {
             // Xóa cookie refresh token
             res.clearCookie('refresh_token');
-    
+
             res.status(200).json({ message: 'Đăng xuất thành công' });
         } catch (error) {
             res.status(500).json({ message: error.message });
@@ -88,12 +90,12 @@ const userController = {
     },
     changeAvatar: async (req, res) => {
         const userId = req?.user?._id;
-        if(!userId) return res.status(404).json({
+        if (!userId) return res.status(404).json({
             message: 'User id không tồn tại'
         })
 
         const avatarFile = req.file;
-        if(!avatarFile) return res.status(404).json({
+        if (!avatarFile) return res.status(404).json({
             message: 'Chưa có file ảnh avatar'
         })
 
@@ -106,7 +108,7 @@ const userController = {
                 avatarUrl: avatarUrl
             })
         }
-        catch(error) {
+        catch (error) {
             return res.status(400).json({
                 message: error.message
             });
@@ -114,7 +116,7 @@ const userController = {
     },
     updateProfile: async (req, res) => {
         const userId = req?.user?._id;
-        if(!userId) return res.status(404).json({
+        if (!userId) return res.status(404).json({
             message: "Tài khoản không tồn tại"
         })
 
@@ -139,6 +141,75 @@ const userController = {
             res.status(200).json(newAccessToken);
         } catch (error) {
             res.status(400).json({ message: error.message });
+        }
+    },
+
+    getAllUsers: async (req, res) => {
+        try {
+            const { users, countUser } = await userService.getAllUsers();
+            res.status(200).json({
+                message: 'Lấy danh sách người dùng thành công',
+                data: users,
+                countUser: countUser
+            });
+        } catch (error) {
+            res.status(400).json({
+                message: error.message
+            });
+        }
+    },
+
+    getUserById: async (req, res) => {
+        const { userId } = req.params;
+        if (!userId) return res.status(404).json({
+            message: 'User id không tồn tại'
+        })
+
+        try {
+            const user = await userService.getUserById(userId);
+            return res.status(200).json({
+                message: 'Lấy thông tin người dùng thành công',
+                data: user
+            });
+        }
+        catch (error) {
+            return res.status(400).json({
+                message: error.message
+            });
+        }
+    },
+
+    deleteUser: async (req, res) => {
+        const { userId } = req.params;
+        if (!userId) return res.status(404).json({
+            message: 'User id không tồn tại'
+        })
+
+        try {
+            await userService.deleteUser(userId);
+            return res.status(200).json({
+                message: 'Xóa người dùng thành công'
+            });
+        }
+        catch (error) {
+            return res.status(400).json({
+                message: error.message
+            });
+        }
+    },
+
+    countTotalUsers: async (req, res) => {
+        try {
+            const totalUsers = await userService.countTotalUsers();
+            return res.status(200).json({
+                success: true,
+                totalUsers: totalUsers
+            });
+        }
+        catch (error) {
+            return res.status(400).json({
+                message: error.message
+            });
         }
     }
 }

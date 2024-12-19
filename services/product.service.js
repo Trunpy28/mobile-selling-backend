@@ -20,11 +20,11 @@ export const generateSlugify = async (name) => {
 }
 
 const productService = {
-    createProduct: async (data) => {
+    createProduct: async (product) => {
         try {
-            const slug = await generateSlugify(data.name);
+            let slug = await generateSlugify(product.name);
             const newProduct = await Product.create({
-                ...data,
+                ...product,
                 urlSlug: slug
             });
             return newProduct;
@@ -58,24 +58,24 @@ const productService = {
     },
 
     getAllProducts: async (searchQuery, sortOrder, selectedBrands, page, pageSize) => {
-        if(page && typeof page === "string") {
+        if (page && typeof page === "string") {
             page = parseInt(page);
-            if(isNaN(page) || page < 1) page = 1;
-          }
-        
-          if(pageSize && typeof pageSize === "string") {
+            if (isNaN(page) || page < 1) page = 1;
+        }
+
+        if (pageSize && typeof pageSize === "string") {
             pageSize = parseInt(pageSize);
-            if(isNaN(pageSize) || pageSize < 1 || pageSize > 100) pageSize = 10;
-          }
+            if (isNaN(pageSize) || pageSize < 1 || pageSize > 100) pageSize = 10;
+        }
 
         try {
             let query = Product.find();
 
-            if(searchQuery) {
-                query.find({ name :{ $regex: searchQuery, $options: "i"}});
+            if (searchQuery) {
+                query.find({ name: { $regex: searchQuery, $options: "i" } });
             }
 
-            if(selectedBrands && selectedBrands.length > 0) {
+            if (selectedBrands && selectedBrands.length > 0) {
                 const brands = await Brand.find({ name: { $in: selectedBrands } });
                 const brandIds = brands.map(brand => brand._id);
 
@@ -86,26 +86,26 @@ const productService = {
 
             let sort = {};
 
-            if(sortOrder) {
-                if(sortOrder === "name-asc") {
+            if (sortOrder) {
+                if (sortOrder === "name-asc") {
                     sort = { name: 1 };
                 }
-                else if(sortOrder === "price-desc") {
+                else if (sortOrder === "price-desc") {
                     sort = { price: -1 };
                 }
-                else if(sortOrder === "price-asc") {
+                else if (sortOrder === "price-asc") {
                     sort = { price: 1 };
                 }
 
                 query.sort(sort);
             }
 
-            if(page && pageSize) {
+            if (page && pageSize) {
                 query = query.skip((page - 1) * pageSize).limit(pageSize);
             }
 
             const products = await query.exec();
-                                          
+
             return { totalProducts, products };
         } catch (error) {
             throw new Error(error.message);
@@ -115,11 +115,11 @@ const productService = {
     getProductsOfBrand: async (brandId, limit) => {
         try {
             let query = Product.find({ brand: brandId });
-    
+
             if (Number.isInteger(limit) && limit > 0) {
                 query = query.limit(limit);
             }
-            
+
             const products = await query.exec();
             return products;
         } catch (error) {
@@ -127,13 +127,25 @@ const productService = {
         }
     },
 
-    updateProduct: async (id, data) => {
+    updateProduct: async (id, newData) => {
         try {
-            if (data.name) {
-                const slug = await generateSlugify(data.name);
-                data.urlSlug = slug;
+            const product = await Product.findById(id);
+            if (!product) {
+                throw new Error('Không tìm thấy sản phẩm');
             }
-            const updatedProduct = await Product.findByIdAndUpdate(id, data, { new: true });
+            if (newData.name) {
+                const slug = await generateSlugify(newData.name);
+                newData.urlSlug = slug;
+            }
+            const updatedData = {
+                ...product._doc, //Du lieu cu
+                ...newData //Ghi de du lieu moi
+            };
+            const updatedProduct = await Product.findByIdAndUpdate(
+                id,
+                updatedData,
+                { new: true }
+            );
             if (!updatedProduct) {
                 throw new Error('Không tìm thấy sản phẩm');
             }
@@ -153,7 +165,16 @@ const productService = {
         } catch (error) {
             throw new Error(error.message);
         }
-    }
+    },
+
+    countTotalProducts: async () => {
+        try {
+            const totalProducts = await Product.countDocuments();
+            return totalProducts;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
 };
 
 export default productService;
