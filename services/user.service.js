@@ -35,12 +35,12 @@ const userService = {
         const user = await User.findOne({ email }).select("+password");
 
         if (!user) {
-            return new Error('Email hoặc mật khẩu không đúng');
+            throw new Error('Email hoặc mật khẩu không đúng');
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return new Error('Email hoặc mật khẩu không đúng');
+            throw new Error('Email hoặc mật khẩu không đúng' );
         }
 
         return {
