@@ -100,8 +100,6 @@ const cartService = {
         try {
             let cart = await cartService.getMyCart(userId);
     
-            console.log(cart.products);
-    
             // Kiểm tra sản phẩm đã tồn tại trong giỏ hàng chưa
             const productIndex = cart.products.findIndex(
                 (p) => p.product._id.toString() === productId
