@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import Product from "../models/product.model.js";
 
 const calculateTotalPriceInCart = async (cart) => {

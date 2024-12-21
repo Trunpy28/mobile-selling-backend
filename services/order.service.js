@@ -4,17 +4,17 @@ import cartService from './cart.service.js';
 import paymentService from './payment.service.js';
 
 const orderService = {
-    createOrder: async (userId, shippingInfo, paymentMethod) => {
+    createOrder: async (userId, shippingInfo, paymentMethod, ipAddr) => {
         const session = await mongoose.startSession();
         session.startTransaction();
 
         try {
             const cart = await cartService.getMyCart(userId);
-                if(!cart || cart.products.length === 0) {
-                    return res.status(400).json({
-                        message: 'Giỏ hàng trống'
-                    })
-            
+            if (!cart || cart.products.length === 0) {
+                return res.status(400).json({
+                    message: 'Giỏ hàng trống'
+                })
+
             }
 
             const products = cart.products.map(item => {
@@ -24,9 +24,8 @@ const orderService = {
                     price: item.product.price
                 }
             })
-    
+
             console.log(shippingInfo);
-            
             const newOrder = new Order({
                 userId,
                 products,
@@ -35,10 +34,28 @@ const orderService = {
 
             await newOrder.save({ session });
 
-            const newPayment = await paymentService.createPayment(newOrder?._id, {
-                paymentMethod,
-                amountPaid: newOrder.totalPrice, 
-            }, session);
+            let paymentData = null;
+            if (paymentMethod === "VNPay") {
+                const { paymentUrl, savedPayment } = await paymentService.createPayment(
+                    newOrder._id,
+                    {
+                        paymentMethod,
+                        amountPaid: newOrder.totalPrice,
+                        orderInfo: newOrder._id,
+                        paymentStatus: "Pending",
+                    },
+                    session,
+                    ipAddr
+                );
+                paymentData = { paymentUrl, savedPayment };
+            }
+            else {
+                const newPayment = await paymentService.createPayment(newOrder?._id, {
+                    paymentMethod,
+                    amountPaid: newOrder.totalPrice,
+                }, session, ipAddr);
+                paymentData = newPayment;
+            }
 
             await cartService.clearCart(userId, session);
 
@@ -48,7 +65,7 @@ const orderService = {
             await newOrder.populate('products.product', 'id name price imageUrl color')
             return {
                 newOrder,
-                newPayment
+                paymentData
             };
         }
         catch (error) {
