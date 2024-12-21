@@ -1,14 +1,24 @@
 import brandService from "../services/brand.service.js";
 import productService from "../services/product.service.js";
+import cloudinaryServices from "../services/cloudinary.service.js";
 
 const productController = {
     createProduct: async (req, res) => {
         try {
-            const newProduct = await productService.createProduct(req.body);
+            let imageUrls = [];
+            if (req.files) {
+                const { listResult } = await cloudinaryServices.uploadFiles(req.files);
+                imageUrls = listResult.map(result => result.secure_url);
+            }
+            console.log(req.files);
+
+            const productData = { ...req.body, imageUrl: imageUrls };
+            console.log("productData:", productData);
+            const newProduct = await productService.createProduct(productData);
             res.status(201).json({
                 success: true,
                 message: 'Tạo sản phẩm thành công',
-                product: newProduct
+                data: newProduct
             });
         } catch (error) {
             res.status(400).json({
@@ -66,7 +76,25 @@ const productController = {
 
     updateProduct: async (req, res) => {
         try {
-            const updatedProduct = await productService.updateProduct(req.params.id, req.body);
+            const { id } = req.params;
+            const data = req.body;
+
+            let existingImages = req.body.images || [];
+            if (typeof existingImages === 'string') {
+                existingImages = [existingImages];
+            }
+
+            let uploadedImages = [];
+            if (req.files && req.files.length > 0) {
+                const { listResult } = await cloudinaryServices.uploadFiles(req.files);
+                uploadedImages = listResult.map((result) => result.secure_url);
+            }
+
+            const updatedImages = [...existingImages, ...uploadedImages];
+            data.imageUrl = updatedImages;
+
+            const updatedProduct = await productService.updateProduct(id, data);
+
             res.status(200).json({
                 success: true,
                 message: 'Cập nhật sản phẩm thành công',
@@ -79,6 +107,7 @@ const productController = {
             });
         }
     },
+
 
     deleteProduct: async (req, res) => {
         try {
@@ -103,6 +132,21 @@ const productController = {
             res.status(200).json({
                 success: true,
                 products
+            });
+        } catch (error) {
+            res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
+    },
+
+    countTotalProducts: async (req, res) => {
+        try {
+            const totalProducts = await productService.countTotalProducts();
+            res.status(200).json({
+                success: true,
+                data: totalProducts
             });
         } catch (error) {
             res.status(404).json({
