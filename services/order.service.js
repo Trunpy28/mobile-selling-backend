@@ -44,6 +44,12 @@ const orderService = {
                 }, session);
                 const paymentUrl = await initiateMoMoPayment(newOrder);
                 console.log("Payment URL from MoMo:", paymentUrl);
+                await cartService.clearCart(userId, session);
+
+                await session.commitTransaction();
+                await session.endSession();
+
+                await newOrder.populate('products.product', 'id name price imageUrl color')
                 return { newOrder, newPayment, paymentUrl };
             } else {
                 newPayment = await paymentService.createPayment(newOrder?._id, {
