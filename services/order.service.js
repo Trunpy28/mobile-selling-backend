@@ -40,6 +40,7 @@ const orderService = {
             if (paymentMethod === 'MoMo') {
                 newPayment = await paymentService.createPayment(newOrder?._id, {
                     paymentMethod,
+                    paymentStatus: "Completed",
                     amountPaid: newOrder.totalPrice,
                 }, session);
                 const paymentUrl = await initiateMoMoPayment(newOrder);
