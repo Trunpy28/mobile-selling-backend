@@ -1,8 +1,9 @@
 import iconv from "iconv-lite";
 import { Parser } from "json2csv";
-import Product from "../models/product.model.js";
 import Brand from "../models/brand.model.js";
-import User from "../models/user.model.js";
+import Product from "../models/product.model.js";
+import Order from "../models/order.model.js";
+import Payment from "../models/payment.model.js";
 
 const exportFileController = {
     exportProductCSV: async (req, res) => {
@@ -10,6 +11,8 @@ const exportFileController = {
             const brands = await Brand.find();
             const productsByBrand = [];
             let totalProductCount = 0;
+            let totalOrderCount = 0;
+            let totalOrderValue = 0;
 
             for (const brand of brands) {
                 const productCount = await Product.countDocuments({ brand: brand._id });
@@ -21,59 +24,84 @@ const exportFileController = {
                 });
             }
 
-            const totalUserCount = await User.countDocuments();
+            const orders = await Order.find();
+            totalOrderCount = orders.length;
+            orders.forEach(order => {
+                totalOrderValue += order.totalPrice;
+            });
+
             productsByBrand.push({
                 Brand: "Total Products",
                 ProductCount: totalProductCount,
             });
             productsByBrand.push({
-                Brand: "Total Users",
-                ProductCount: totalUserCount,
+                Brand: "Total Orders",
+                ProductCount: totalOrderCount,
+            });
+            productsByBrand.push({
+                Brand: "Total Revenue",
+                ProductCount: totalOrderValue.toFixed(2),
             });
 
-            const users = await User.find();
-            const userDetails = users.map((user) => ({
-                name: user.name,
-                email: user.email,
-                phone: user.phoneNumber,
-                address: user.address ? `${user.address.city}, ${user.address.district}, ${user.address.ward}, ${user.address.detailedAddress}` : "No Address",
+            const payments = await Payment.find()
+                .populate("orderId", "userId products totalPrice shippingStatus")
+                .populate({
+                    path: "orderId",
+                    populate: {
+                        path: "products.product",
+                        select: "name",
+                    },
+                })
+                .populate({
+                    path: "orderId",
+                    populate: {
+                        path: "userId",
+                        select: "name email phoneNumber",
+                    },
+                });
 
-            }));
+            const orderDetails = payments.map((payment) => {
+                const order = payment.orderId;
+                const user = order?.userId || {};
 
-            const products = await Product.find().populate("brand", "name");
-            const productDetails = products.map((product) => ({
-                productName: product.name,
-                originalPrice: product.originalPrice,
-                price: product.price,
-                color: product.color,
-                quantity: product.countInStock,
-                brand: product.brand ? product.brand.name : "No Brand",
-            }));
+                const productsList = order?.products
+                    .map((item) => `${item.product?.name || "Unknown"} (x${item.quantity})`)
+                    .join(", ") || "No Products";
+
+                return {
+                    orderId: order?._id || "N/A",
+                    userName: user.name || "No Name",
+                    userEmail: user.email || "No Email",
+                    userPhone: user.phoneNumber || "No Phone",
+                    totalPrice: order?.totalPrice || 0,
+                    productsList,
+                    paymentMethod: payment.paymentMethod || "N/A",
+                    paymentStatus: payment.paymentStatus || "N/A",
+                    shippingStatus: order?.shippingStatus || "N/A",
+                };
+            });
 
             const fieldsBrandOverview = ["Brand", "ProductCount"];
-            const fieldsUserDetails = ["name", "email", "phone", "address"];
-            const fieldsProductDetails = ["brand", "productName", "originalPrice", "price", "color", "quantity"];
+            const fieldsOrderDetails = [
+                "orderId",
+                "userName",
+                "userEmail",
+                "userPhone",
+                "productsList",
+                "totalPrice",
+                "paymentMethod",
+                "paymentStatus",
+                "shippingStatus"
+            ];
 
             const json2csvParserBrand = new Parser({ fields: fieldsBrandOverview });
             const csvBrandOverview = json2csvParserBrand.parse(productsByBrand);
 
-            const json2csvParserUser = new Parser({ fields: fieldsUserDetails });
-            const csvUserDetails = json2csvParserUser.parse(userDetails);
-
-            const json2csvParserProduct = new Parser({ fields: fieldsProductDetails });
-            const csvProductDetails = json2csvParserProduct.parse(productDetails);
+            const json2csvParserOrder = new Parser({ fields: fieldsOrderDetails });
+            const csvOrderDetails = json2csvParserOrder.parse(orderDetails);
 
             const BOM = "\uFEFF";
-            const finalCSV = `
-Bang Tong Quan San Pham Va Nguoi Dung
-${csvBrandOverview}
-
-Bang Thong Tin Nguoi Dung
-${csvUserDetails}
-
-Bang Thong Tin San Pham
-${csvProductDetails}
-            `;
+            const finalCSV = `Bang Tong Quan San Pham Va Nguoi Dung\n${csvBrandOverview}\n\nBang Thong Tin Don Hang\n${csvOrderDetails}`;
 
             const csvBuffer = iconv.encode(BOM + finalCSV, "windows-1252");
 
