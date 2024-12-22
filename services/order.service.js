@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import Order from '../models/order.model.js'
+import Order from '../models/order.model.js';
 import cartService from './cart.service.js';
 import paymentService from './payment.service.js';
 import Payment from '../models/payment.model.js';
@@ -16,8 +16,7 @@ const orderService = {
             if (!cart || cart.products.length === 0) {
                 return res.status(400).json({
                     message: 'Giỏ hàng trống'
-                })
-
+                });
             }
 
             const products = cart.products.map(item => {
@@ -25,7 +24,8 @@ const orderService = {
                     product: item.product._id,
                     quantity: item.quantity,
                     price: item.product.price
-                }
+                };
+            });
             console.log(shippingInfo);
 
             const newOrder = new Order({
@@ -49,7 +49,7 @@ const orderService = {
                 await session.commitTransaction();
                 await session.endSession();
 
-                await newOrder.populate('products.product', 'id name price imageUrl color')
+                await newOrder.populate('products.product', 'id name price imageUrl color');
                 return { newOrder, newPayment, paymentUrl };
             } else {
                 newPayment = await paymentService.createPayment(newOrder?._id, {
@@ -64,7 +64,7 @@ const orderService = {
             await session.endSession();
 
             await newOrder.populate('products.product', 'id name price imageUrl color');
-            
+
             return {
                 newOrder,
                 newPayment
@@ -83,22 +83,22 @@ const orderService = {
         } catch (error) {
             throw new Error('Failed to count orders: ' + error.message);
         }
-    },  
+    },
+
     getAllOrders: async () => {
         try {
             const payments = await Payment.find().select('orderId paymentMethod paymentStatus');
             const orders = await Order.find().select("userId shippingInfo.name totalPrice shippingStatus createdAt").populate("userId", "email");
-    
+
             const paymentsMap = payments.reduce((map, payment) => {
                 map[payment.orderId] = payment;
                 return map;
             }, {});
-            
+
             const ordersInfo = orders.map(order => ({
                 order,
                 payment: paymentsMap[order._id]
             }));
-    
 
             return ordersInfo;
         } catch (error) {
@@ -106,8 +106,9 @@ const orderService = {
             throw new Error("Lấy thông tin các đơn hàng thất bại");
         }
     },
+
     getDetailsOrder: async (orderId) => {
-        if(!mongoose.Types.ObjectId.isValid(orderId)){
+        if (!mongoose.Types.ObjectId.isValid(orderId)) {
             throw new Error("OrderId không hợp lệ");
         }
 
@@ -115,36 +116,37 @@ const orderService = {
             const order = await Order.findById(orderId).populate("products.product", "id name price imageUrl color");
             const payment = await Payment.findOne({ orderId });
 
-            if(!order) {
+            if (!order) {
                 throw new Error("Đơn hàng không tồn tại");
             }
-            if(!payment) {
-                throw new Error("Thanh toán của đơn hàng không tồn tại")
+            if (!payment) {
+                throw new Error("Thanh toán của đơn hàng không tồn tại");
             }
 
             return {
                 order,
                 payment
-            }
+            };
         }
-        catch(error) {
+        catch (error) {
             console.error("Error in getDetailsOrder:", error);
             throw new Error("Lấy thông tin đơn hàng thất bại");
         }
     },
+
     changeOrderStatus: async (orderId, data) => {
         const { shippingStatus, paymentStatus } = data;
-        
-        if(!mongoose.Types.ObjectId.isValid(orderId)) {
+
+        if (!mongoose.Types.ObjectId.isValid(orderId)) {
             throw new Error("Orderid không hợp lệ");
         }
 
-        if(!["Pending", "Shipping", "Completed"].includes(shippingStatus)) {
+        if (!["Pending", "Shipping", "Completed"].includes(shippingStatus)) {
             throw new Error("Trạng thái vận chuyển đơn hàng không hợp lệ");
         }
 
-        if(!["Pending", "Completed"].includes(paymentStatus)) {
-            throw new Error("Trạng thái thanh toán đơn hàng không hợp lệ")
+        if (!["Pending", "Completed"].includes(paymentStatus)) {
+            throw new Error("Trạng thái thanh toán đơn hàng không hợp lệ");
         }
 
         const session = await mongoose.startSession();
@@ -160,15 +162,16 @@ const orderService = {
             await session.commitTransaction();
             await session.endSession();
         }
-        catch(error) {
+        catch (error) {
             await session.abortTransaction();
             await session.endSession();
-            throw new Error("Cập nhật thông tin đơn hàng thất bại")
+            throw new Error("Cập nhật thông tin đơn hàng thất bại");
         }
     },
-    deleteOrder: async(orderId) => {
-        if(!mongoose.Types.ObjectId.isValid(orderId)) {
-            throw new Error("OrderId không hợp lệ")
+
+    deleteOrder: async (orderId) => {
+        if (!mongoose.Types.ObjectId.isValid(orderId)) {
+            throw new Error("OrderId không hợp lệ");
         }
 
         const session = await mongoose.startSession();
@@ -181,13 +184,13 @@ const orderService = {
             await session.commitTransaction();
             await session.endSession();
         }
-        catch(error) {
+        catch (error) {
             await session.abortTransaction();
             await session.endSession();
             throw new Error("Xóa đơn hàng thất bại");
         }
     }
-}
+};
 
 async function initiateMoMoPayment(order) {
     const accessKey = process.env.ACCESS_KEY_MOMO;

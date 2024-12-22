@@ -3,19 +3,18 @@ import handlebars from 'handlebars';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url'; // Import thêm để xử lý URL
-import { log } from 'console';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // Use `true` for port 465, `false` for all other ports
-    auth: {
-      user: process.env.MAIL_ACCOUNT,
-      pass: process.env.MAIL_PASSWORD,
-    },
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // Use `true` for port 465, `false` for all other ports
+  auth: {
+    user: process.env.MAIL_ACCOUNT,
+    pass: process.env.MAIL_PASSWORD,
+  },
 });
 
 export const sendCreateOrderEmail = async (order, email) => {
@@ -38,7 +37,7 @@ export const sendCreateOrderEmail = async (order, email) => {
     priceFormatted: product.price.toLocaleString("vi-VN"),
     totalPriceFormatted: (product.price * product.quantity).toLocaleString("vi-VN"),
   }));
-  
+
   const context = { order: orderData };
 
   const createOrderHtml = template(context); // Tạo HTML email
