@@ -120,6 +120,28 @@ const orderController = {
                 message: error.message
             })
         }
+    },
+    getMyOrders: async (req, res) => {
+        const userId = req.user.id;
+        if(!userId) {
+            return res.status(401).json({
+                message: 'Tài khoản không tồn tại'
+            })
+        }
+
+        try {
+            const orders = await orderService.getMyOrders(userId);
+
+            return res.status(200).json({
+                message: "Lấy thông tin đơn hàng của tôi thành công",
+                orders
+            })
+        }
+        catch(error) {
+            return res.status(500).json({
+                message: error.message
+            })
+        }
     }
 }
 

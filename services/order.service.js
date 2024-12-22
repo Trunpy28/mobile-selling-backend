@@ -159,7 +159,22 @@ const orderService = {
             await session.endSession();
             throw new Error("Xóa đơn hàng thất bại");
         }
-    }
+    },
+    getMyOrders: async (userId) => {
+        if(!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error("UserId không hợp lệ");
+        }
+
+        try {
+            const orders = await Order.find({ userId }).populate("products.product", "id name imageUrl color")
+                                    .sort({ createdAt: -1 });
+
+            return orders;
+        }
+        catch(error) {
+            throw new Error("Lấy thông tin các đơn hàng thất bại");
+        }
+    },
 }
 
 export default orderService;
