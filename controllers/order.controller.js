@@ -50,26 +50,34 @@ const orderController = {
             })
         }
     },
-    getDetailsOrder: async (req, res) => {
+    getOrderDetails: async (req, res) => {
+        const userId = req.user.id;
         const orderId = req.params.orderId;
+
+        if(!userId) {
+            return res.status(401).json({
+                message: 'Tài khoản không tồn tại'
+            })
+        }
+
         if(!orderId) {
             return res.status(400).json({
                 message: "Id của đơn hàng không tồn tại"
             })
         }
-        
+
         try {
-            const data = await orderService.getDetailsOrder(orderId);
+            const data = await orderService.getOrderDetails(userId, orderId);
 
             if(!data) {
                 return res.status(404).json({
-                    message: "Thông tin đơn hàng và thanh toán không tồn tại"
+                    message: "Thông tin đơn hàng không tồn tại"
                 })
             }
 
             return res.status(200).json({
-                message: "Lấy thông tin đơn hàng và thanh toán thành công",
-                data
+                message: "Lấy thông tin đơn hàng thành công",
+                ...data
             })
         }
         catch(error) {
@@ -142,7 +150,7 @@ const orderController = {
                 message: error.message
             })
         }
-    }
+    },
 }
 
 export default orderController;

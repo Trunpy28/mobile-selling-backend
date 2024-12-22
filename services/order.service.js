@@ -60,7 +60,7 @@ const orderService = {
     getAllOrders: async () => {
         try {
             const payments = await Payment.find().select('orderId paymentMethod paymentStatus');
-            const orders = await Order.find().select("userId shippingInfo.name totalPrice shippingStatus createdAt").populate("userId", "email");
+            const orders = await Order.find().select("userId shippingInfo.name totalPrice shippingStatus createdAt").populate("userId", "email").sort({ createdAt: -1 });
     
             const paymentsMap = payments.reduce((map, payment) => {
                 map[payment.orderId] = payment;
@@ -79,21 +79,22 @@ const orderService = {
             throw new Error("Lấy thông tin các đơn hàng thất bại");
         }
     },
-    getDetailsOrder: async (orderId) => {
-        if(!mongoose.Types.ObjectId.isValid(orderId)){
-            throw new Error("OrderId không hợp lệ");
+    getOrderDetails: async (userId, orderId) => {
+        if(!mongoose.Types.ObjectId.isValid(orderId)) {
+            throw new Error("OrderId không hợp lệ")
+        }
+
+        if(!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error("UserId không hợp lệ");
         }
 
         try {
-            const order = await Order.findById(orderId).populate("products.product", "id name price imageUrl color");
-            const payment = await Payment.findOne({ orderId });
+            const order = await Order.findOne({ userId, _id: orderId }).populate("products.product", "id name imageUrl color");
+            if(order.userId.toString() !== userId) {
+                throw new Error("Đơn hàng không phải của bạn");
+            }
 
-            if(!order) {
-                throw new Error("Đơn hàng không tồn tại");
-            }
-            if(!payment) {
-                throw new Error("Thanh toán của đơn hàng không tồn tại")
-            }
+            const payment = await Payment.findOne({ orderId });
 
             return {
                 order,
@@ -101,7 +102,6 @@ const orderService = {
             }
         }
         catch(error) {
-            console.error("Error in getDetailsOrder:", error);
             throw new Error("Lấy thông tin đơn hàng thất bại");
         }
     },
