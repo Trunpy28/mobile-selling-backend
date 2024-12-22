@@ -34,6 +34,21 @@ const orderController = {
                 error: error.message
             });
         }
+    },
+
+    countOrders: async (req, res) => {
+        try {
+            const count = await orderService.countOrders();
+            return res.status(200).json({
+                count
+            });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                message: 'Lấy số lượng đơn hàng thất bại',
+                error: error.message
+            });
+        }
     }
 }
 

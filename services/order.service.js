@@ -75,18 +75,26 @@ const orderService = {
             await session.endSession();
             throw error;
         }
+    },
+
+    countOrders: async () => {
+        try {
+            return await Order.countDocuments();
+        } catch (error) {
+            throw new Error('Failed to count orders: ' + error.message);
+        }
     }
 }
 
 async function initiateMoMoPayment(order) {
-    const accessKey = 'F8BBA842ECF85';
-    const secretKey = 'K951B6PE1waDMi640xX08PD3vg6EkVlz';
+    const accessKey = process.env.ACCESS_KEY_MOMO;
+    const secretKey = process.env.SECRET_KEY_MOMO;
+    const partnerCode = process.env.PARTNER_CODE_MOMO;
+    const redirectUrl = process.env.REDIRECT_URL_MOMO;
+    const ipnUrl = process.env.IPN_URL_MOMO;
     const orderInfo = 'Pay with MoMo';
-    const partnerCode = 'MOMO';
-    const redirectUrl = 'http://localhost:5173/order-success';
-    const ipnUrl = 'https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b';
     const requestType = "payWithMethod";
-    const amount = order.totalPrice;  // Sử dụng tổng giá trị đơn hàng
+    const amount = order.totalPrice;
     const orderId = partnerCode + new Date().getTime();
     const requestId = orderId;
     const extraData = '';
