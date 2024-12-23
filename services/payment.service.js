@@ -5,7 +5,7 @@ const paymentService = {
         let { paymentMethod, amountPaid, transactionId, paymentStatus } = data;
         let paidAt = null;
 
-        if(paymentStatus === "Completed") {
+        if (paymentStatus === "Completed") {
             paidAt = new Date();
         }
 
@@ -18,7 +18,7 @@ const paymentService = {
         });
 
         return await newPayment.save({ session });
-    },
+    }
 }
 
 export default paymentService;
