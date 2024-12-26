@@ -77,36 +77,38 @@ const productController = {
     updateProduct: async (req, res) => {
         try {
             const { id } = req.params;
-            const data = req.body;
-
-            let existingImages = req.body.images || [];
-            if (typeof existingImages === 'string') {
-                existingImages = [existingImages];
-            }
-
+            const data = { ...req.body };
             let uploadedImages = [];
             if (req.files && req.files.length > 0) {
                 const { listResult } = await cloudinaryServices.uploadFiles(req.files);
                 uploadedImages = listResult.map((result) => result.secure_url);
             }
-
-            const updatedImages = [...existingImages, ...uploadedImages];
-            data.imageUrl = updatedImages;
-
+            if (uploadedImages.length > 0) {
+                data.imageUrl = uploadedImages;
+            }
             const updatedProduct = await productService.updateProduct(id, data);
-
+            if (!updatedProduct) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Cập nhật sản phẩm thất bại',
+                });
+            }
             res.status(200).json({
                 success: true,
                 message: 'Cập nhật sản phẩm thành công',
-                product: updatedProduct
+                product: updatedProduct,
             });
         } catch (error) {
-            res.status(404).json({
+            console.error('Lỗi trong updateProduct:', error.stack || error.message);
+            res.status(500).json({
                 success: false,
-                message: error.message
+                message: 'Có lỗi xảy ra khi cập nhật sản phẩm',
+                error: error.message,
             });
         }
     },
+
+
 
 
     deleteProduct: async (req, res) => {

@@ -44,18 +44,19 @@ const brandService = {
             if (!brand) {
                 throw new Error('Không tìm thấy thương hiệu');
             }
-            const updatedData = {
-                ...brand._doc,
-                ...newData
+            if (newData.logoUrl) {
+                brand.logoUrl = newData.logoUrl;
+            }
+            else {
+                newData.logoUrl = brand.logoUrl;
             }
             const updatedBrand = await Brand.findByIdAndUpdate(
                 id,
-                updatedData,
+                { $set: newData },
                 { new: true }
             );
             return updatedBrand;
-        }
-        catch (error) {
+        } catch (error) {
             throw new Error(error.message);
         }
     },
