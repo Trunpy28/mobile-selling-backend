@@ -6,7 +6,7 @@ const ProductDetailRouter = Router();
 
 ProductDetailRouter.post('/create', authMiddleware, productDetailController.createProductDetail);
 ProductDetailRouter.get('/:productId', productDetailController.getProductDetail);
-ProductDetailRouter.put('/update/:productId', authMiddleware, productDetailController.updateProductDetail);
+ProductDetailRouter.patch('/update/:productId', authMiddleware, productDetailController.updateProductDetail);
 ProductDetailRouter.delete('/delete/:productId', authMiddleware, productDetailController.deleteProductDetail);
 
 export default ProductDetailRouter;

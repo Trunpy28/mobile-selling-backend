@@ -68,7 +68,6 @@ const brandController = {
             const data = req.body;
             if (req.file) {
                 data.logoUrl = await cloudinaryServices.uploadFile(req.file);
-                data.logoUrl = logoUrl;
             }
             const updatedBrand = await brandService.updateBrand(brandId, data);
             res.status(200).json({

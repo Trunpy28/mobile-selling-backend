@@ -38,10 +38,13 @@ const productDetailController = {
     updateProductDetail: async (req, res) => {
         try {
             const { productId } = req.params;
-            const productDetail = await productDetailService.updateProductDetail(productId, req.body);
+            const data = req.body;
+
+            const productDetail = await productDetailService.updateProductDetail(productId, data);
+
             res.status(200).json({
                 success: true,
-                message: 'Cập nhật chi tiết sản phẩm thành công',
+                message: productDetail ? 'Cập nhật chi tiết sản phẩm thành công' : 'Tạo mới chi tiết sản phẩm thành công',
                 data: productDetail
             });
         } catch (error) {

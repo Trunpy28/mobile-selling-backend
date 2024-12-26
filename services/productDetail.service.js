@@ -26,16 +26,27 @@ const productDetailService = {
 
     updateProductDetail: async (productId, data) => {
         try {
-            const productDetail = await ProductDetails.findByIdAndUpdate(
-                productId,
-                data,
-                { new: true }
-            );
+            let productDetail = await ProductDetails.findOne({ product: productId });
+
+            if (productDetail) {
+                productDetail = await ProductDetails.findOneAndUpdate(
+                    { product: productId },
+                    data,
+                    { new: true }
+                );
+            } else {
+                productDetail = await ProductDetails.create({
+                    ...data,
+                    product: productId
+                });
+            }
+
             return productDetail;
         } catch (error) {
             throw new Error(error.message);
         }
     },
+
 
     deleteProductDetail: async (productId) => {
         try {

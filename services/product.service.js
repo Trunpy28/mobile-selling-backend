@@ -3,11 +3,11 @@ import Product from "../models/product.model.js";
 import Brand from "../models/brand.model.js";
 
 export const generateSlugify = async (name) => {
-    const slug = slugify(
+    let slug = slugify(
         name,
         { lower: true, locale: 'vi', strict: true }
     );
-    const slugExist = await Product.findOne({ urlSlug: slug });
+    let slugExist = await Product.findOne({ urlSlug: slug });
     let counter = 1;
     let uniqueSlug = slug;
 
@@ -127,34 +127,42 @@ const productService = {
         }
     },
 
-    updateProduct: async (id, newData) => {
+    updateProduct: async (productId, data) => {
         try {
-            const product = await Product.findById(id);
+            const product = await Product.findById(productId);
             if (!product) {
                 throw new Error('Không tìm thấy sản phẩm');
             }
-            if (newData.name) {
-                const slug = await generateSlugify(newData.name);
-                newData.urlSlug = slug;
+
+            if (data.name) {
+                data.urlSlug = await generateSlugify(data.name);
             }
-            const updatedData = {
-                ...product._doc, //Du lieu cu
-                ...newData //Ghi de du lieu moi
-            };
+
+            if (data.imageUrl && Array.isArray(data.imageUrl)) {
+                data.imageUrl = data.imageUrl.filter(item => typeof item === 'string');
+            }
+
+            if (!data.imageUrl || data.imageUrl.length === 0) {
+                data.imageUrl = product.imageUrl;
+            }
+
             const updatedProduct = await Product.findByIdAndUpdate(
-                id,
-                updatedData,
-                { new: true }
+                productId,
+                { $set: data },
+                { new: true, runValidators: true }
             );
+
             if (!updatedProduct) {
-                throw new Error('Không tìm thấy sản phẩm');
+                throw new Error('Không tìm thấy sản phẩm sau khi cập nhật');
             }
+
             return updatedProduct;
         } catch (error) {
-            throw new Error(error.message);
+            console.error('Lỗi trong updateProduct:', error.stack || error.message);
+            throw new Error('Cập nhật sản phẩm thất bại');
         }
-
     },
+
 
     deleteProduct: async (id) => {
         try {
