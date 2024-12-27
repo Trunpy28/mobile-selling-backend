@@ -1,6 +1,6 @@
 import { Router } from "express";
 import productController from "../controllers/product.controller.js";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { adminAuthMiddleware, authMiddleware } from "../middlewares/auth.middleware.js";
 import multer from 'multer';
 
 const storage = multer.memoryStorage();
@@ -14,8 +14,8 @@ ProductRouter.get('/product-details/:id', productController.getProductById);
 ProductRouter.get('/details/:slug', productController.getProductBySlug);
 ProductRouter.get('/get-all', productController.getAllProducts);
 ProductRouter.get('/total-products', productController.countTotalProducts);
-ProductRouter.patch('/update/:id', authMiddleware, upload.array('imageUrl', 6), productController.updateProduct);
-ProductRouter.delete('/delete/:id', authMiddleware, productController.deleteProduct);
+ProductRouter.patch('/update/:id', authMiddleware, adminAuthMiddleware,upload.array('imageUrl', 6), productController.updateProduct);
+ProductRouter.delete('/delete/:id', authMiddleware, adminAuthMiddleware, productController.deleteProduct);
 ProductRouter.get('/products-of-brand', productController.getProductsOfBrand);
 
 export default ProductRouter;
