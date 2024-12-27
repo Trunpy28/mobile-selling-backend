@@ -1,6 +1,6 @@
 import { Router } from "express";
 import userController from "../controllers/user.controller.js";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { adminAuthMiddleware, authMiddleware } from "../middlewares/auth.middleware.js";
 import multer from 'multer';
 
 const storage = multer.memoryStorage();
@@ -18,6 +18,6 @@ UserRouter.get('/user-infomation', authMiddleware, userController.getUserInfomat
 UserRouter.patch('/change-avatar', authMiddleware, upload.single("avatarImage"), userController.changeAvatar);
 UserRouter.put('/update-profile', authMiddleware, userController.updateProfile);
 UserRouter.post('/refresh-access-token', userController.refreshAccessToken);
-UserRouter.delete('/delete/:userId', userController.deleteUser);
+UserRouter.delete('/delete/:userId', authMiddleware, adminAuthMiddleware,userController.deleteUser);
 
 export default UserRouter;
