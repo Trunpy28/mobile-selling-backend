@@ -4,6 +4,6 @@ import { adminAuthMiddleware, authMiddleware } from '../middlewares/auth.middlew
 
 const ExportFileRouter = Router();
 
-ExportFileRouter.get('/export-file', authMiddleware, adminAuthMiddleware,exportFileController.exportProductCSV);
+ExportFileRouter.get('/export-file', exportFileController.exportProductCSV);
 
 export default ExportFileRouter;

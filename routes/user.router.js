@@ -18,6 +18,6 @@ UserRouter.get('/user-infomation', authMiddleware, userController.getUserInfomat
 UserRouter.patch('/change-avatar', authMiddleware, upload.single("avatarImage"), userController.changeAvatar);
 UserRouter.put('/update-profile', authMiddleware, userController.updateProfile);
 UserRouter.post('/refresh-access-token', userController.refreshAccessToken);
-UserRouter.delete('/delete/:userId', authMiddleware, adminAuthMiddleware,userController.deleteUser);
+UserRouter.delete('/delete/:userId', authMiddleware, adminAuthMiddleware, userController.deleteUser);
 
 export default UserRouter;
